@@ -3,15 +3,8 @@
 # Fail the script in case any of the commands get an error
 set -e 
 
-# Define Variables for the Configurations using uuidgen or request an Application Secret if you are using Azure Cloud Shell
+# Define Variables for the Configurations
 export APP_SECRET=$(uuidgen)
-if [ -z $APP_SECRET ]
-then
-   echo "Please enter with the APPLICATION SECRET to be used by Conformity:"
-   IFS=$'\n'
-   read -r APP_SECRET
-fi
-
 export CUSTOM_ROLE="Custom Role - Cloud One Conformity"
 
 # Ask User Input for the App Registration Name
@@ -51,7 +44,7 @@ for (( i; i<$NUM_SUBS; i++ ))
 do  
     az role definition create \
     --role-definition '{ \
-      "Name": "'$CUSTOM_ROLE' '$i'", \
+      "Name": "'$CUSTOM_ROLE'", \
       "Description": "Subscription level custom role for Cloud Conformity access.", \
       "Actions": [ \
          "Microsoft.AppConfiguration/configurationStores/ListKeyValue/action", \
@@ -63,18 +56,16 @@ do
       "NotDataActions": [], \
       "AssignableScopes": ["/subscriptions/'${SUBSCRIPTIONS[i]}'"] \
       }' > /dev/null
-   sleep 30
+   sleep 5
    az role assignment create \
+      --role $CUSTOM_ROLE \
       --assignee $APP_ID \
-      --role "$CUSTOM_ROLE $i" \
       --scope /subscriptions/${SUBSCRIPTIONS[i]} > /dev/null
-   
-   sleep 30
+   sleep 5
    az role assignment create \
       --role Reader \
       --assignee $APP_ID \
       --scope /subscriptions/${SUBSCRIPTIONS[i]} > /dev/null
-
 done
 
 # Print All the Information
