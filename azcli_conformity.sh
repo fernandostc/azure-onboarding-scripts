@@ -11,6 +11,7 @@ then
    IFS=$'\n'
    read -r APP_SECRET
 fi
+
 export CUSTOM_ROLE="Custom Role - Cloud One Conformity"
 
 
@@ -56,6 +57,8 @@ do
       AssingScopes+=", \"/subscriptions/${SUBSCRIPTIONS[i]}\""
    fi
 done
+
+echo $AssingScopes
 
 az role definition create \
     --role-definition '{ \
